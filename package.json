@@ -1,0 +1,25 @@
+{
+  "name": "toast-react-native",
+  "version": "1.0.0",
+  "description": "Simple toast UI for react native using valina Animated library and native props...",
+  "main": "index.tsx",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/athaljen/toast-react-native.git"
+  },
+  "keywords": [
+    "toast",
+    "react-native",
+    "simple-toast",
+    "native-toast"
+  ],
+  "author": "athalJen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/athaljen/toast-react-native/issues"
+  },
+  "homepage": "https://github.com/athaljen/toast-react-native#readme"
+}
