@@ -1,6 +1,6 @@
-declare module "toast-react-native" {
-  import { ReactNode } from "react";
+import { ReactNode } from "react";
 
+declare module "toast-react-native" {
   type ToastProps = {
     children?: ReactNode;
   };
