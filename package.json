@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Simple toast UI for react native using inbuilt React-Native Animated library and native props...",
   "main": "lib/index.tsx",
+  "types": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

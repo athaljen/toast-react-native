@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from "react";
 import {
   Animated,
   Image,
@@ -6,10 +6,10 @@ import {
   PanResponderInstance,
   StyleSheet,
   Text,
-} from 'react-native';
-import {Icons} from '../assets';
-import {ShowToastConfig, ToastProps, ToastState} from '../types';
-import {colors, safeTop} from '../constants';
+} from "react-native";
+import { Icons } from "../assets";
+import { ShowToastConfig, ToastProps, ToastState } from "../types";
+import { colors, safeTop } from "../constants";
 
 class ToastComponent extends Component<ToastProps, ToastState> {
   private animation: Animated.Value;
@@ -21,47 +21,63 @@ class ToastComponent extends Component<ToastProps, ToastState> {
   };
   constructor(props: ToastProps | Readonly<ToastProps>) {
     super(props);
-    this.state = {message: '', isError: false};
+    this.state = { message: "", isError: false };
     this.animation = new Animated.Value(0);
     this.props.duration;
-    this.transitionY = new Animated.Value(0);
+    this.transitionY = new Animated.Value(-safeTop);
     this.panResponser = PanResponder.create({
       onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (event, gesture) => {
+      onPanResponderMove: (_, gesture) => {
         if (gesture.dy < 0) {
           this.transitionY.setValue(gesture.dy);
         }
       },
-      onPanResponderEnd: (event, gesture) => {
-        Animated.spring(this.animation, {
-          toValue: 0,
-          useNativeDriver: true,
-          bounciness: 15,
-        }).start();
-        this.transitionY.setValue(0);
+      onPanResponderEnd: () => {
+        this.deAnimate();
       },
     });
   }
 
-  showToast({message, isError}: ShowToastConfig) {
-    // this.animation.resetAnimation();
+  animate() {
+    console.log(safeTop);
 
-    this.setState({message, isError});
+    Animated.parallel([
+      Animated.spring(this.animation, {
+        toValue: 1,
+        useNativeDriver: true,
+        bounciness: 15,
+      }),
+      Animated.spring(this.transitionY, {
+        useNativeDriver: true,
+        toValue: safeTop,
+        bounciness: 15,
+      }),
+    ]).start(() => {});
+  }
 
-    Animated.spring(this.animation, {
-      toValue: 1,
-      useNativeDriver: true,
-      bounciness: 15,
-    }).start(() => {
+  deAnimate() {
+    Animated.parallel([
       Animated.spring(this.animation, {
         toValue: 0,
         useNativeDriver: true,
         bounciness: 15,
-        delay: this.props.duration,
-      }).start(() => {
-        this.transitionY.setValue(0);
-      });
-    });
+      }),
+      Animated.spring(this.transitionY, {
+        useNativeDriver: true,
+        toValue: -safeTop,
+        bounciness: 15,
+      }),
+    ]).start(() => {});
+  }
+
+  showToast({ message, isError }: ShowToastConfig) {
+    // this.animation.resetAnimation();
+    this.setState({ message, isError });
+
+    this.animate();
+    setTimeout(() => {
+      this.deAnimate();
+    }, this.props.duration);
   }
 
   renderIcon = () => {
@@ -70,7 +86,7 @@ class ToastComponent extends Component<ToastProps, ToastState> {
         style={[
           styles.iconContainer,
           this.props.iconContainerStyle,
-          {backgroundColor: this.state.isError ? colors.red : colors.green},
+          { backgroundColor: this.state.isError ? colors.red : colors.green },
           {
             transform: [
               {
@@ -81,10 +97,11 @@ class ToastComponent extends Component<ToastProps, ToastState> {
               },
             ],
           },
-        ]}>
+        ]}
+      >
         <Image
           style={[styles.img, this.props.iconStyle]}
-          source={{uri: this.state.isError ? Icons.Cross : Icons.Tick}}
+          source={{ uri: this.state.isError ? Icons.Cross : Icons.Tick }}
           resizeMode="contain"
         />
       </Animated.View>
@@ -101,7 +118,7 @@ class ToastComponent extends Component<ToastProps, ToastState> {
           {
             // opacity: this.animation,
             transform: [
-              {translateY: this.transitionY},
+              { translateY: this.transitionY },
               {
                 translateY: this.animation.interpolate({
                   inputRange: [0, 1],
@@ -116,7 +133,8 @@ class ToastComponent extends Component<ToastProps, ToastState> {
               },
             ],
           },
-        ]}>
+        ]}
+      >
         {this.renderIcon()}
         <Text style={[styles.text, this.props.textStyle]}>
           {this.state.message}
@@ -128,30 +146,30 @@ class ToastComponent extends Component<ToastProps, ToastState> {
 
 const styles = StyleSheet.create({
   toastContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     marginHorizontal: 20,
     borderRadius: 10,
-    alignSelf: 'center',
+    alignSelf: "center",
     backgroundColor: colors.black_gray,
     paddingHorizontal: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 8,
     flexShrink: 1,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
-  text: {color: colors.white, flex: 1, textAlign: 'left'},
+  text: { color: colors.white, flex: 1, textAlign: "left" },
   iconContainer: {
     height: 25,
     width: 25,
     borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 3,
     marginRight: 15,
   },
-  img: {height: 15, width: 15},
+  img: { height: 15, width: 15 },
 });
 
 export default ToastComponent;

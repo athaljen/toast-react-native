@@ -1,19 +1,25 @@
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 
 declare module "toast-react-native" {
-  type ToastProps = {
-    children?: ReactNode;
-  };
+  export interface ShowToastConfig {
+    message: string;
+    duration?: number;
+  }
 
-  class ToastComponent extends React.Component<ToastProps> {
-    showToast(): void;
+  export interface ToastProviderProps {
+    style?: ViewStyle;
+    children: React.ReactNode;
+  }
+
+  export class ToastComponent extends React.Component<ToastProps> {
+    showToast(config: ShowToastConfig): void;
   }
 
   const ToastRef: React.RefObject<ToastComponent>;
 
-  const ToastProvider: React.FC<ToastProps>;
+  const ToastProvider: React.FC<ToastProviderProps>;
 
-  const Toast: () => void;
+  const Toast: (config: ShowToastConfig) => void;
 
   export default ToastProvider;
   export { Toast };
