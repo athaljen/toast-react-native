@@ -1,15 +1,15 @@
-import React, { Component } from "react";
+import React, {Component} from 'react';
 import {
   Animated,
-  Image,
   PanResponder,
   PanResponderInstance,
   StyleSheet,
   Text,
-} from "react-native";
-import { Icons } from "../assets";
-import { ShowToastConfig, ToastProps, ToastState } from "../types";
-import { colors, safeTop } from "../constants";
+} from 'react-native';
+import {ShowToastConfig, ToastProps, ToastState} from '../types';
+import {colors, Icons, safeTop} from '../constants';
+
+let timeOut: any;
 
 class ToastComponent extends Component<ToastProps, ToastState> {
   private animation: Animated.Value;
@@ -19,9 +19,10 @@ class ToastComponent extends Component<ToastProps, ToastState> {
   static defaultProps: ToastProps = {
     duration: 2500,
   };
+
   constructor(props: ToastProps | Readonly<ToastProps>) {
     super(props);
-    this.state = { message: "", isError: false };
+    this.state = {message: '', type: undefined};
     this.animation = new Animated.Value(0);
     this.props.duration;
     this.transitionY = new Animated.Value(-safeTop);
@@ -39,8 +40,6 @@ class ToastComponent extends Component<ToastProps, ToastState> {
   }
 
   animate() {
-    console.log(safeTop);
-
     Animated.parallel([
       Animated.spring(this.animation, {
         toValue: 1,
@@ -48,14 +47,15 @@ class ToastComponent extends Component<ToastProps, ToastState> {
         bounciness: 15,
       }),
       Animated.spring(this.transitionY, {
-        useNativeDriver: true,
-        toValue: safeTop,
         bounciness: 15,
+        toValue: safeTop,
+        useNativeDriver: true,
       }),
     ]).start(() => {});
   }
 
   deAnimate() {
+    clearTimeout(timeOut);
     Animated.parallel([
       Animated.spring(this.animation, {
         toValue: 0,
@@ -70,41 +70,25 @@ class ToastComponent extends Component<ToastProps, ToastState> {
     ]).start(() => {});
   }
 
-  showToast({ message, isError }: ShowToastConfig) {
+  showToast(config: ShowToastConfig) {
     // this.animation.resetAnimation();
-    this.setState({ message, isError });
+    this.setState({message: config.message, type: config.type});
 
     this.animate();
-    setTimeout(() => {
+    timeOut = setTimeout(() => {
       this.deAnimate();
-    }, this.props.duration);
+      this.setState({message: ''});
+    }, config.duration || this.props.duration);
   }
 
   renderIcon = () => {
+    if (!this.state.type) return;
     return (
-      <Animated.View
-        style={[
-          styles.iconContainer,
-          this.props.iconContainerStyle,
-          { backgroundColor: this.state.isError ? colors.red : colors.green },
-          {
-            transform: [
-              {
-                scale: this.animation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, 1],
-                }),
-              },
-            ],
-          },
-        ]}
-      >
-        <Image
-          style={[styles.img, this.props.iconStyle]}
-          source={{ uri: this.state.isError ? Icons.Cross : Icons.Tick }}
-          resizeMode="contain"
-        />
-      </Animated.View>
+      <Animated.Image
+        style={[styles.icon, this.props.iconStyle]}
+        source={Icons[this.state.type]}
+        resizeMode="contain"
+      />
     );
   };
 
@@ -116,15 +100,9 @@ class ToastComponent extends Component<ToastProps, ToastState> {
           styles.toastContainer,
           this.props.containerStyle,
           {
-            // opacity: this.animation,
+            opacity: this.animation,
             transform: [
-              { translateY: this.transitionY },
-              {
-                translateY: this.animation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-safeTop, safeTop],
-                }),
-              },
+              {translateY: this.transitionY},
               {
                 scale: this.animation.interpolate({
                   inputRange: [0, 1],
@@ -133,10 +111,9 @@ class ToastComponent extends Component<ToastProps, ToastState> {
               },
             ],
           },
-        ]}
-      >
+        ]}>
         {this.renderIcon()}
-        <Text style={[styles.text, this.props.textStyle]}>
+        <Text style={[styles.message, this.props.textStyle]} numberOfLines={4}>
           {this.state.message}
         </Text>
       </Animated.View>
@@ -146,30 +123,35 @@ class ToastComponent extends Component<ToastProps, ToastState> {
 
 const styles = StyleSheet.create({
   toastContainer: {
-    position: "absolute",
-    top: 0,
+    position: 'absolute',
     marginHorizontal: 20,
     borderRadius: 10,
-    alignSelf: "center",
+    alignSelf: 'center',
     backgroundColor: colors.black_gray,
     paddingHorizontal: 10,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 8,
     flexShrink: 1,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
-  text: { color: colors.white, flex: 1, textAlign: "left" },
+  message: {
+    color: colors.white,
+    flex: 1,
+    textAlign: 'left',
+    marginLeft: 10,
+    marginTop: -2,
+  },
   iconContainer: {
     height: 25,
     width: 25,
     borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 3,
     marginRight: 15,
   },
-  img: { height: 15, width: 15 },
+  icon: {height: 28, width: 28},
 });
 
 export default ToastComponent;
