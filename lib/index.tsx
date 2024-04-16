@@ -1,8 +1,8 @@
-import React, {memo} from 'react';
-import {View} from 'react-native';
-import ToastComponent from './components/ToastComponent';
-import {ShowToastConfig, ToastProviderProps} from './types';
-import {styles} from './constants';
+import React, { memo } from "react";
+import { View } from "react-native";
+import ToastComponent from "./components/ToastComponent";
+import { ShowToastConfig, ToastProviderProps } from "./types";
+import { styles, ToastType } from "./constants";
 
 const ToastRef = React.createRef<ToastComponent>();
 
@@ -19,4 +19,5 @@ const ToastProvider = memo((props: ToastProviderProps) => {
   );
 });
 
+export { ToastType };
 export default ToastProvider;

@@ -1,6 +1,5 @@
 import React from "react";
-import { StyleProp, TextStyle, ViewStyle } from "react-native";
-import { ImageStyle } from "react-native-fast-image";
+import { ImageStyle, StyleProp, TextStyle, ViewStyle } from "react-native";
 
 export enum ToastType {
   SUCCESS = "SUCCESS",

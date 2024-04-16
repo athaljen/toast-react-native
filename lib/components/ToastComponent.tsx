@@ -1,13 +1,13 @@
-import React, {Component} from 'react';
+import React, { Component } from "react";
 import {
   Animated,
   PanResponder,
   PanResponderInstance,
   StyleSheet,
   Text,
-} from 'react-native';
-import {ShowToastConfig, ToastProps, ToastState} from '../types';
-import {colors, Icons, safeTop} from '../constants';
+} from "react-native";
+import { ShowToastConfig, ToastProps, ToastState } from "../types";
+import { colors, Icons, safeTop } from "../constants";
 
 let timeOut: any;
 
@@ -22,7 +22,7 @@ class ToastComponent extends Component<ToastProps, ToastState> {
 
   constructor(props: ToastProps | Readonly<ToastProps>) {
     super(props);
-    this.state = {message: '', type: undefined};
+    this.state = { message: "", type: undefined };
     this.animation = new Animated.Value(0);
     this.props.duration;
     this.transitionY = new Animated.Value(-safeTop);
@@ -42,14 +42,14 @@ class ToastComponent extends Component<ToastProps, ToastState> {
   animate() {
     Animated.parallel([
       Animated.spring(this.animation, {
-        toValue: 1,
         useNativeDriver: true,
         bounciness: 15,
+        toValue: 1,
       }),
       Animated.spring(this.transitionY, {
-        bounciness: 15,
-        toValue: safeTop,
         useNativeDriver: true,
+        toValue: safeTop,
+        bounciness: 15,
       }),
     ]).start(() => {});
   }
@@ -58,9 +58,9 @@ class ToastComponent extends Component<ToastProps, ToastState> {
     clearTimeout(timeOut);
     Animated.parallel([
       Animated.spring(this.animation, {
-        toValue: 0,
         useNativeDriver: true,
         bounciness: 15,
+        toValue: 0,
       }),
       Animated.spring(this.transitionY, {
         useNativeDriver: true,
@@ -68,16 +68,18 @@ class ToastComponent extends Component<ToastProps, ToastState> {
         bounciness: 15,
       }),
     ]).start(() => {});
+    setTimeout(() => {
+      this.setState({ message: "", type: undefined });
+    }, 500);
   }
 
   showToast(config: ShowToastConfig) {
     // this.animation.resetAnimation();
-    this.setState({message: config.message, type: config.type});
+    this.setState({ message: config.message, type: config.type });
 
     this.animate();
     timeOut = setTimeout(() => {
       this.deAnimate();
-      this.setState({message: ''});
     }, config.duration || this.props.duration);
   }
 
@@ -100,9 +102,9 @@ class ToastComponent extends Component<ToastProps, ToastState> {
           styles.toastContainer,
           this.props.containerStyle,
           {
-            opacity: this.animation,
+            // opacity: this.animation,
             transform: [
-              {translateY: this.transitionY},
+              { translateY: this.transitionY },
               {
                 scale: this.animation.interpolate({
                   inputRange: [0, 1],
@@ -111,7 +113,8 @@ class ToastComponent extends Component<ToastProps, ToastState> {
               },
             ],
           },
-        ]}>
+        ]}
+      >
         {this.renderIcon()}
         <Text style={[styles.message, this.props.textStyle]} numberOfLines={4}>
           {this.state.message}
@@ -123,35 +126,35 @@ class ToastComponent extends Component<ToastProps, ToastState> {
 
 const styles = StyleSheet.create({
   toastContainer: {
-    position: 'absolute',
+    position: "absolute",
     marginHorizontal: 20,
-    borderRadius: 10,
-    alignSelf: 'center',
+    borderRadius: 5,
+    alignSelf: "center",
     backgroundColor: colors.black_gray,
-    paddingHorizontal: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
+    paddingHorizontal: 8,
+    flexDirection: "row",
+    alignItems: "center",
     flexShrink: 1,
-    overflow: 'hidden',
+    overflow: "hidden",
+    zIndex: 999,
   },
   message: {
     color: colors.white,
     flex: 1,
-    textAlign: 'left',
-    marginLeft: 10,
-    marginTop: -2,
+    textAlign: "left",
+    marginLeft: 8,
+    marginVertical: 5,
   },
   iconContainer: {
     height: 25,
     width: 25,
     borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 3,
     marginRight: 15,
   },
-  icon: {height: 28, width: 28},
+  icon: { height: 28, width: 28, margin: 5 },
 });
 
 export default ToastComponent;
